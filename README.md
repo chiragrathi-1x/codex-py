@@ -4,20 +4,18 @@
 
 ## The Problem
 
-Large codebases often exceed LLM context windows or overwhelm developers trying to understand a new architecture. Existing solutions usually offer a binary choice: provide the entire source (which consumes too many tokens) or a simple file tree (which lacks enough detail). Codex-Py bridges this gap by providing a structural "interface" of your project.
+Large codebases often exceed LLM context windows or overwhelm developers trying to understand a new architecture. Codex-Py bridges this gap by providing a structural "interface" of your project, allowing you to share the what and how without the thousands of lines of implementation details.
 
 ## Features
 
-- **AST-Based Extraction**: Prunes function implementations while meticulously preserving signatures, decorators, and return types.
-- **Gitignore Integration**: Automatically detects and respects `.gitignore` rules to keep your maps clean of artifacts and virtual environments.
+- **AST-Based Extraction**: Prunes function implementations while preserving signatures, decorators, and return types.
+- **Gitignore Integration**: Automatically detects and respects `.gitignore` rules to keep your maps clean.
 - **Granular Filtering**: Include or exclude private members (those prefixed with underscores) or specific module paths.
-- **Multi-Format Output**: Generate structured Markdown for human readability or JSON for integration into other automated pipelines.
-- **Modern Python Support**: Full support for Type Hints, `async/await` syntax, and complex nested structures.
-- **Token-Awareness**: Includes logic to estimate the token footprint of the generated map.
+- **Multi-Format Output**: Generate structured Markdown or JSON.
+- **Modern Python Support**: Full support for Type Hints, `async/await`, and complex nested structures.
+- **Token-Awareness**: Provides heuristics for token usage estimation.
 
 ## Installation
-
-As Codex-Py is currently in development, you can install it from source:
 
 ```bash
 git clone https://github.com/username/codex-py.git
@@ -25,36 +23,38 @@ cd codex-py
 pip install .
 ```
 
-## Quick Start
+## CLI Usage
 
-Generate a structural map of your current directory:
-
-```bash
-codex .
-```
-
-## CLI Examples
+- **Basic scan of current directory:**
+  ```bash
+  codex .
+  ```
 
 - **Save to a file, excluding private methods:**
   ```bash
   codex . --output context.md --no-private
   ```
 
-- **Limit recursion depth and include docstrings:**
+- **Limit recursion depth and exclude specific folders:**
   ```bash
-  codex ./src --depth 2 --include-docstrings
+  codex ./src --depth 2 --exclude "**/tests/*" --exclude "docs/*"
   ```
 
 - **Export to JSON for programmatic use:**
   ```bash
-  codex ./app --format json --exclude 'tests/*'
+  codex ./app --format json
   ```
 
 ## Limitations
 
-- **Static Analysis**: Codex-Py performs static analysis using the `ast` module. It does not execute code and cannot resolve dynamic runtime attributes or meta-programming results.
-- **Import Resolution**: While it maps dependencies, it does not currently verify if those imports are valid or installed in the environment.
+- **Static Only**: Codex-Py uses the standard `ast` module. It does not execute code, meaning it cannot resolve attributes created dynamically at runtime (e.g., via `setattr` or complex metaclass logic).
+- **Syntax Specific**: It requires syntactically valid Python 3.10+ code. Files with syntax errors are skipped.
+- **Comment Pruning**: Regular code comments are stripped; only docstrings (string literals at the start of blocks) are preserved if requested.
 
-## Contributing
+## Testing
 
-Contributions are welcome! Please ensure that any new features include corresponding updates to the test suite and adhere to the project's quality standards. Codex-Py aims for 100% coverage of Python 3.10+ syntax features.
+Run the test suite using `unittest`:
+
+```bash
+python -m unittest discover tests
+```

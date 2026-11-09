@@ -2,10 +2,14 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 @dataclass
+class ImportItem:
+    name: str
+    alias: Optional[str] = None
+
+@dataclass
 class ImportDef:
     module: Optional[str]
-    names: List[str]
-    alias: Optional[str] = None
+    items: List[ImportItem] = field(default_factory=list)
 
 @dataclass
 class FunctionDef:
@@ -15,15 +19,17 @@ class FunctionDef:
     is_async: bool
     decorators: List[str] = field(default_factory=list)
     is_private: bool = False
+    nested_functions: List['FunctionDef'] = field(default_factory=list)
 
 @dataclass
 class ClassDef:
     name: str
     bases: List[str]
     docstring: Optional[str]
-    methods: List[FunctionDef] = field(default_factory=list)
     decorators: List[str] = field(default_factory=list)
     is_private: bool = False
+    nested_classes: List['ClassDef'] = field(default_factory=list)
+    nested_functions: List[FunctionDef] = field(default_factory=list)
 
 @dataclass
 class ModuleMap:
